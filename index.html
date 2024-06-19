@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Flashcards</title>
+  <style>
+    body {
+      font-family: 'Open Sans', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: #f4f7f6;
+    }
+    .switch-button {
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #8e44ad;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    .card-container {
+      display: grid;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
+    }
+    .card {
+      background-color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(145deg, #fdebd0, #f4d03f);
+      /* Adding a stronger drop shadow via filter. Adjust values as desired */
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .hidden {
+      display: none;
+    }
+    .Chinese {
+      font-weight: bold;
+      color: #34495e;
+      margin-bottom: 10px;
+    }
+    .English, .Japanese, .Katakana {
+      font-weight: normal;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+
+<body>
+    <button class="switch-button" onclick="switchLanguage()"><b style="color: yellow">Chinese</b> => English => Japanese => French => German</button>
+    <audio id="sound-effect" src="Ring01.mp3"></audio>
+    <div class="card-container">
+    </div>
+    <script>
+        var cardsData = [
+            {
+                "Chinese": "什么",
+                "Hanyupinyin": "shénme",
+                "English": "What",
+                "Japanese": "何",
+                "Katakana": "ナニ",
+                "French": "Quoi",
+                "German": "Was",
+                "Revealed": false
+            },
+            {
+                "Chinese": "喜欢",
+                "Hanyupinyin": "xǐhuan",
+                "English": "Like",
+                "Japanese": "好き",
+                "Katakana": "スキ",
+                "French": "Aimer",
+                "German": "Mögen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "你我他",
+                "Hanyupinyin": "nǐ wǒ tā",
+                "English": "You, me, him",
+                "Japanese": "あなた、わたし、かれ",
+                "Katakana": "アナタ、ワタシ、カレ",
+                "French": "Toi, moi, lui",
+                "German": "Du, ich, er",
+                "Revealed": false
+            },
+            {
+                "Chinese": "她他它",
+                "Hanyupinyin": "tā tā tā",
+                "English": "She, he, it",
+                "Japanese": "かのじょ、かれ、それ",
+                "Katakana": "カノジョ、カレ、ソレ",
+                "French": "Elle, il, ça",
+                "German": "Sie, er, es",
+                "Revealed": false
+            },
+            {
+                "Chinese": "要",
+                "Hanyupinyin": "yào",
+                "English": "Want",
+                "Japanese": "要る",
+                "Katakana": "イル",
+                "French": "Vouloir",
+                "German": "Wollen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "都也",
+                "Hanyupinyin": "dōu yě",
+                "English": "All, also",
+                "Japanese": "すべて、また",
+                "Katakana": "スベテ、マタ",
+                "French": "Tous, aussi",
+                "German": "Alle, auch",
+                "Revealed": false
+            },
+            {
+                "Chinese": "是",
+                "Hanyupinyin": "shì",
+                "English": "Is",
+                "Japanese": "です",
+                "Katakana": "デス",
+                "French": "Est",
+                "German": "Ist",
+                "Revealed": false
+            },
+            {
+                "Chinese": "的",
+                "Hanyupinyin": "de",
+                "English": "Of",
+                "Japanese": "の",
+                "Katakana": "ノ",
+                "French": "De",
+                "German": "Von",
+                "Revealed": false
+            },
+            {
+                "Chinese": "人",
+                "Hanyupinyin": "rén",
+                "English": "Person",
+                "Japanese": "人",
+                "Katakana": "ヒト",
+                "French": "Personne",
+                "German": "Person",
+                "Revealed": false
+            },
+            {
+                "Chinese": "新",
+                "Hanyupinyin": "xīn",
+                "English": "New",
+                "Japanese": "新しい",
+                "Katakana": "アタラシイ",
+                "French": "Nouveau",
+                "German": "Neu",
+                "Revealed": false
+            },
+            {
+                "Chinese": "开",
+                "Hanyupinyin": "kāi",
+                "English": "Open",
+                "Japanese": "開ける",
+                "Katakana": "アケル",
+                "French": "Ouvrir",
+                "German": "Öffnen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "关",
+                "Hanyupinyin": "guān",
+                "English": "Close",
+                "Japanese": "閉じる",
+                "Katakana": "トジル",
+                "French": "Fermer",
+                "German": "Schließen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "门",
+                "Hanyupinyin": "mén",
+                "English": "Door",
+                "Japanese": "ドア",
+                "Katakana": "ドア",
+                "French": "Porte",
+                "German": "Tür",
+                "Revealed": false
+            },
+            {
+                "Chinese": "目",
+                "Hanyupinyin": "mù",
+                "English": "Eye",
+                "Japanese": "目",
+                "Katakana": "メ",
+                "French": "Œil",
+                "German": "Auge",
+                "Revealed": false
+            },
+            {
+                "Chinese": "木",
+                "Hanyupinyin": "mù",
+                "English": "Wood",
+                "Japanese": "木",
+                "Katakana": "キ",
+                "French": "Bois",
+                "German": "Holz",
+                "Revealed": false
+            },
+            {
+                "Chinese": "衣服",
+                "Hanyupinyin": "yīfú",
+                "English": "Clothes",
+                "Japanese": "服",
+                "Katakana": "フク",
+                "French": "Vêtements",
+                "German": "Kleidung",
+                "Revealed": false
+            },
+            {
+                "Chinese": "上下午",
+                "Hanyupinyin": "shàng xiàwǔ",
+                "English": "Morning/Afternoon",
+                "Japanese": "午前/午後",
+                "Katakana": "ゴゼン/ゴゴ",
+                "French": "Matin/Après-midi",
+                "German": "Vormittag/Nachmittag",
+                "Revealed": false
+            },
+            {
+                "Chinese": "上课",
+                "Hanyupinyin": "shàngkè",
+                "English": "Attend class",
+                "Japanese": "授業に出る",
+                "Katakana": "ジュギョウニデル",
+                "French": "Assister à la classe",
+                "German": "Am Unterricht teilnehmen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "去",
+                "Hanyupinyin": "qù",
+                "English": "Go",
+                "Japanese": "行く",
+                "Katakana": "イク",
+                "French": "Aller",
+                "German": "Gehen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "来",
+                "Hanyupinyin": "lái",
+                "English": "Come",
+                "Japanese": "来る",
+                "Katakana": "クル",
+                "French": "Venir",
+                "German": "Kommen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "在",
+                "Hanyupinyin": "zài",
+                "English": "At",
+                "Japanese": "にいる",
+                "Katakana": "ニイル",
+                "French": "À",
+                "German": "Bei",
+                "Revealed": false
+            },
+            {
+                "Chinese": "这里",
+                "Hanyupinyin": "zhèlǐ",
+                "English": "Here",
+                "Japanese": "ここに",
+                "Katakana": "ココニ",
+                "French": "Ici",
+                "German": "Hier",
+                "Revealed": false
+            },
+            {
+                "Chinese": "那里",
+                "Hanyupinyin": "nàlǐ",
+                "English": "There",
+                "Japanese": "そこに",
+                "Katakana": "ソコニ",
+                "French": "Là",
+                "German": "Dort",
+                "Revealed": false
+            },
+            {
+                "Chinese": "没有",
+                "Hanyupinyin": "méiyǒu",
+                "English": "Not have",
+                "Japanese": "ない",
+                "Katakana": "ナイ",
+                "French": "Ne pas avoir",
+                "German": "Nicht haben",
+                "Revealed": false
+            },
+            {
+                "Chinese": "有",
+                "Hanyupinyin": "yǒu",
+                "English": "Have",
+                "Japanese": "ある",
+                "Katakana": "アル",
+                "French": "Avoir",
+                "German": "Haben",
+                "Revealed": false
+            },
+            {
+                "Chinese": "几个",
+                "Hanyupinyin": "jǐ gè",
+                "English": "How many",
+                "Japanese": "いくつ",
+                "Katakana": "イクツ",
+                "French": "Combien",
+                "German": "Wie viele",
+                "Revealed": false
+            },
+            {
+                "Chinese": "不",
+                "Hanyupinyin": "bù",
+                "English": "Not",
+                "Japanese": "ない",
+                "Katakana": "ナイ",
+                "French": "Ne...pas",
+                "German": "Nicht",
+                "Revealed": false
+            },
+            {
+                "Chinese": "朋友",
+                "Hanyupinyin": "péngyou",
+                "English": "Friend",
+                "Japanese": "友達",
+                "Katakana": "トモダチ",
+                "French": "Ami",
+                "German": "Freund",
+                "Revealed": false
+            },
+            {
+                "Chinese": "说",
+                "Hanyupinyin": "shuō",
+                "English": "Speak",
+                "Japanese": "話す",
+                "Katakana": "ハナス",
+                "French": "Parler",
+                "German": "Sprechen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "知道",
+                "Hanyupinyin": "zhī dào",
+                "English": "Know",
+                "Japanese": "知っている",
+                "Katakana": "シッテイル",
+                "French": "Savoir",
+                "German": "Wissen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "认识",
+                "Hanyupinyin": "rèn shi",
+                "English": "Know (a person)",
+                "Japanese": "知り合う",
+                "Katakana": "シリアウ",
+                "French": "Connaître",
+                "German": "Kennen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "和",
+                "Hanyupinyin": "hé",
+                "English": "And",
+                "Japanese": "と",
+                "Katakana": "ト",
+                "French": "Et",
+                "German": "Und",
+                "Revealed": false
+            },
+            {
+                "Chinese": "吗",
+                "Hanyupinyin": "ma",
+                "English": "Question marker",
+                "Japanese": "か",
+                "Katakana": "カ",
+                "French": "Particule de question",
+                "German": "Fragepartikel",
+                "Revealed": false
+            },
+            {
+                "Chinese": "爸爸妈妈",
+                "Hanyupinyin": "bàba māma",
+                "English": "Parents",
+                "Japanese": "両親",
+                "Katakana": "リョウシン",
+                "French": "Parents",
+                "German": "Eltern",
+                "Revealed": false
+            },
+            {
+                "Chinese": "爷爷奶奶",
+                "Hanyupinyin": "yéye nǎinai",
+                "English": "Grandparents (paternal)",
+                "Japanese": "祖父母",
+                "Katakana": "ソフボ",
+                "French": "Grands-parents (paternels)",
+                "German": "Großeltern (väterlicherseits)",
+                "Revealed": false
+            },
+            {
+                "Chinese": "外公外婆",
+                "Hanyupinyin": "wàigōng wàipó",
+                "English": "Grandparents (maternal)",
+                "Japanese": "外祖父母",
+                "Katakana": "ガイソフボ",
+                "French": "Grands-parents (maternels)",
+                "German": "Großeltern (mütterlicherseits)",
+                "Revealed": false
+            },
+            {
+                "Chinese": "回家",
+                "Hanyupinyin": "huí jiā",
+                "English": "Go home",
+                "Japanese": "家に帰る",
+                "Katakana": "ウチニカエル",
+                "French": "Rentrer à la maison",
+                "German": "Nach Hause gehen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "上学",
+                "Hanyupinyin": "shàng xué",
+                "English": "Go to school",
+                "Japanese": "学校に行く",
+                "Katakana": "ガッコウニイク",
+                "French": "Aller à l'école",
+                "German": "Zur Schule gehen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "上课",
+                "Hanyupinyin": "shàng kè",
+                "English": "Attend class",
+                "Japanese": "授業に出る",
+                "Katakana": "ジュギョウニデル",
+                "French": "Assister à la classe",
+                "German": "Am Unterricht teilnehmen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "画画",
+                "Hanyupinyin": "huà huà",
+                "English": "To draw",
+                "Japanese": "絵を描く",
+                "Katakana": "エヲカク",
+                "French": "Dessiner",
+                "German": "Zeichnen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "唱歌",
+                "Hanyupinyin": "chàng gē",
+                "English": "Sing",
+                "Japanese": "歌う",
+                "Katakana": "ウタウ",
+                "French": "Chanter",
+                "German": "Singen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "跳舞",
+                "Hanyupinyin": "tiào wǔ",
+                "English": "Dance",
+                "Japanese": "踊る",
+                "Katakana": "オドル",
+                "French": "Danser",
+                "German": "Tanzen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "好看",
+                "Hanyupinyin": "hǎo kàn",
+                "English": "Good-looking",
+                "Japanese": "見栄えがいい",
+                "Katakana": "ミヨエガイイ",
+                "French": "Beau/Belle",
+                "German": "Gut aussehen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "想",
+                "Hanyupinyin": "xiǎng",
+                "English": "Think/Want",
+                "Japanese": "思う",
+                "Katakana": "オモウ",
+                "French": "Penser/Vouloir",
+                "German": "Denken/Wollen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "觉得",
+                "Hanyupinyin": "jué de",
+                "English": "Feel/Think",
+                "Japanese": "感じる",
+                "Katakana": "カンジル",
+                "French": "Sentir/Penser",
+                "German": "Fühlen/Denken",
+                "Revealed": false
+            },
+            {
+                "Chinese": "今天",
+                "Hanyupinyin": "jīn tiān",
+                "English": "Today",
+                "Japanese": "今日",
+                "Katakana": "キョウ",
+                "French": "Aujourd'hui",
+                "German": "Heute",
+                "Revealed": false
+            },
+            {
+                "Chinese": "晚上",
+                "Hanyupinyin": "wǎn shàng",
+                "English": "Evening",
+                "Japanese": "夜",
+                "Katakana": "ヨル",
+                "French": "Soir",
+                "German": "Abend",
+                "Revealed": false
+            },
+            {
+                "Chinese": "晚安",
+                "Hanyupinyin": "wǎn ān",
+                "English": "Good night",
+                "Japanese": "おやすみ",
+                "Katakana": "オヤスミ",
+                "French": "Bonne nuit",
+                "German": "Gute Nacht",
+                "Revealed": false
+            },
+            {
+                "Chinese": "玩游戏",
+                "Hanyupinyin": "wán yóu xì",
+                "English": "Play games",
+                "Japanese": "ゲームをする",
+                "Katakana": "ゲームヲスル",
+                "French": "Jouer à des jeux",
+                "German": "Spiele spielen",
+                "Revealed": false
+            },
+            {
+                "Chinese": "电脑游戏",
+                "Hanyupinyin": "diànnǎo yóuxì",
+                "English": "Video games",
+                "Japanese": "ビデオゲーム",
+                "Katakana": "ビデオゲーム",
+                "French": "Jeux vidéo",
+                "German": "Videospiele",
+                "Revealed": false
+            },
+            {
+                "Chinese": "也",
+                "Hanyupinyin": "yě",
+                "English": "Also",
+                "Japanese": "も",
+                "Katakana": "モ",
+                "French": "Aussi",
+                "German": "Auch",
+                "Revealed": false
+            }
+        ]
+        var currentLanguage = 'Chinese'; // Initial language
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Directly initialize cards with embedded data 
+            initializeCards(cardsData);            
+        });
+
+        function switchLanguage() {
+            const button = document.querySelector(".switch-button");
+            const languages = ['Chinese', 'English', 'Japanese', 'French', 'German']; // Languages list
+            const buttonTexts = [
+                '<b style="color: yellow">Chinese</b> => English => Japanese => French => German',
+                'Chinese => <b style="color: yellow">English</b> => Japanese => French => German',
+                'Chinese => English => <b style="color: yellow">Japanese</b> => French => German',
+                'Chinese => English => Japanese => <b style="color: yellow">French</b> => German',
+                'Chinese => English => Japanese => French => <b style="color: yellow">German</b>'
+            ];
+        
+            const currentIndex = languages.indexOf(currentLanguage);
+            const newIndex = (currentIndex + 1) % languages.length;
+            currentLanguage = languages[newIndex];
+        
+            button.innerHTML = buttonTexts[newIndex];
+
+            // Reset all cards to show only Chinese.
+            resetCardsToShowOnlyChinese();
+
+            // Play the sound effect
+            const soundEffect = document.getElementById('sound-effect');
+            if (soundEffect) {
+                soundEffect.currentTime = 0; // Rewind to the start if already playing
+                soundEffect.play().catch(e => console.error('Error playing sound effect:', e));
+            }
+        }
+
+        function initializeCards(cardsData) {
+            const cardContainer = document.querySelector('.card-container');
+            cardContainer.innerHTML = ''; // Clear existing cards if any
+
+            cardsData.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                // Reveal function is referenced here; make sure it's defined in your script.
+                cardElement.onclick = () => reveal(cardElement); 
+                cardElement.innerHTML = `
+                    <div class="Chinese">${card.Chinese}</div>
+                    <div class="Chinese">${card.Hanyupinyin}</div>
+                    <div class="English hidden">${card.English}</div>
+                    <div class="Japanese hidden">${card.Japanese}</div>
+                    <div class="Katakana hidden">${card.Katakana}</div>
+                    <div class="French hidden">${card.French}</div>
+                    <div class="German hidden">${card.German}</div>`;
+                cardContainer.appendChild(cardElement);
+            });
+
+            updateCardVisibility(); // Ensures the visibility is updated upon initialization.
+        }
+
+        function reveal(cardElement) {
+            const isRevealed = cardElement.classList.toggle('revealed');
+            let textToSpeak = "";
+            let languageCode = "";
+
+            // Determine which text to speak based on the card's state and the current language.
+            if (isRevealed) {
+                // When revealing, speak in the current selected language.
+                const currentLanguageTextElement = cardElement.querySelector(`.${currentLanguage}`);
+                if (currentLanguageTextElement && currentLanguage !== 'Chinese') {
+                    textToSpeak = currentLanguageTextElement.textContent;
+                    languageCode = getLanguageCode(currentLanguage);
+                } else {
+                    // Fallback to speaking Chinese if the current language is set to Chinese,
+                    // or if no text element for the current language has been found.
+                    textToSpeak = cardElement.querySelector('.Chinese').textContent;
+                    languageCode = getLanguageCode('Chinese');
+                }
+            } else {
+                // When hiding, always revert to speaking Chinese.
+                textToSpeak = cardElement.querySelector('.Chinese').textContent;
+                languageCode = getLanguageCode('Chinese');
+            }
+
+            // Speak the determined text.
+            if (textToSpeak && languageCode) {
+                speakText(textToSpeak, languageCode);
+            }
+
+            // Update visibility of the text based on the card's toggle state.
+            updateCardVisibility();
+        }
+
+        function resetCardsToShowOnlyChinese() {
+            document.querySelectorAll('.card').forEach(card => {
+                // Remove 'revealed' class and ensure only Chinese is shown.
+                card.classList.remove('revealed');
+
+                // Iterate over each language and hide them, except 'Chinese'.
+                ['Hanyupinyin', 'English', 'Japanese', 'Katakana', 'French', 'German'].forEach(lang => {
+                    const element = card.querySelector(`.${lang}`);
+                    if (element) {
+                        element.classList.add('hidden');
+                    }
+                });
+
+                // Make sure Chinese text is visible.
+                card.querySelector('.Chinese').classList.remove('hidden');
+            });
+        }
+
+        function updateCardVisibility() {
+            document.querySelectorAll('.card').forEach(card => {
+                const isRevealed = card.classList.contains('revealed');
+
+                if (currentLanguage === 'Chinese') {
+                    const chineseElement = card.querySelector('.Chinese');
+                    if (chineseElement) chineseElement.classList.remove('hidden');
+                    const hanyupinyinElement = card.querySelector('.Hanyupinyin');
+                    // Assuming here the '.Hanyupinyin' class needs to be added to your HTML structure
+                    // This manages the visibility for when 'Chinese' is the selected language
+                    if (isRevealed) {
+                        // Show both Chinese and Hanyupinyin
+                        if (hanyupinyinElement) hanyupinyinElement.classList.remove('hidden');
+                    } else {
+                        // Hide Hanyupinyin, ensuring only Chinese is shown
+                        if (hanyupinyinElement) hanyupinyinElement.classList.add('hidden');
+                    }
+                } else {
+                    // Handling for other languages remains unchanged, provided in previous versions
+                    ['English', 'Japanese', 'Katakana', 'French', 'German'].forEach(lang => {
+                        const element = card.querySelector(`.${lang}`);
+                        if (element) {
+                            if (isRevealed && lang === currentLanguage) {
+                                element.classList.remove('hidden');
+                            } else {
+                                element.classList.add('hidden');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function getLanguageCode(language) {
+            switch (language) {
+            case 'Chinese':
+                return 'zh-CN';
+            case 'English':
+                return 'en-US';
+            case 'Japanese':
+                return 'ja-JP';
+            case 'French':
+                return 'fr-FR';
+            case 'German': 
+                return 'de-DE'
+            default:
+                return null;
+            }
+        }
+    
+        function speakText(text, lang) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            window.speechSynthesis.speak(utterance);
+        }
+ 
+    </script>
+  </body>
+</html>
